@@ -6,107 +6,42 @@
 #include "bit.h"
 #include "rcc.h"
 #include "exti.h"
-#include "gpio.h"
 #include "sys_cfg.h"
 #include "timer.h"
 #include "nvic.h"
-
-bool led_on = false;
-static bool key_pressed = false;
-
-static uint8_t led_pin = GPIO_PIN_13;
-static uint8_t key_pin = GPIO_PIN_0;
-int initGPIO(void)
-{
-	EnableGPIOClock();
-
-	// set mode to output
-	SetBits(&(rGPIOC.mode), GPIO_MODE_BITS * led_pin, GPIO_MODE_BITS,
-					GPIO_MODE_OUTPUT);
-	// set output type to open-drain
-	SetBits(&(rGPIOC.otype), GPIO_OTYPE_BITS * led_pin, GPIO_OTYPE_BITS,
-					GPIO_OTYPE_OD);
-	// set output speed to medium speed
-	SetBits(&(rGPIOC.ospeed), GPIO_OSPEED_BITS * led_pin, GPIO_OSPEED_BITS,
-					GPIO_OSPEED_MS);
-	// set the GPIO PC13 to led_on
-	if (true == led_on) {
-		// reset GPIOC_13
-		SetBits(&(rGPIOC.bs), GPIO_BITSET_BITS * led_pin + 16, GPIO_BITSET_BITS, 1);
-	} else {
-		// set the GPIO PC13 to led_on
-		SetBits(&(rGPIOC.bs), GPIO_BITSET_BITS * led_pin, GPIO_BITSET_BITS, 1);
-	}
-
-	// set mode to input
-	SetBits(&(rGPIOA.mode), GPIO_MODE_BITS * key_pin, GPIO_MODE_BITS,
-					GPIO_MODE_INPUT);
-	// set port to pull-up
-	SetBits(&(rGPIOA.pupd), GPIO_PUPD_BITS * key_pin, GPIO_PUPD_BITS,
-					GPIO_PUPD_PU);
-
-	// TODO(bjweare): set interrupt priority
-	EnableEXTI0Interrupt();
-
-	return 0;
-}
-
-int initKeyInterrupt(void)
-{
-	EnableSysConfClock();
-#if 0 // not work, because 0x00000058 is mapped to flash, it could not be
-	  // modified
-	// 01. set ISR of EXTI0
-	//*((uint32_t *)0x00000058) = (uint32_t)handleKeyInterrupt;
-	EXTI0_VECTOR = handleKeyInterrupt;
-#endif
-	// 02. set EXTI0 interrupt source in SYSCFG external interrupt configuration 1
-	SetBits(&rSysCfg.exticr1, EXTI_SRC_BITS * 0, EXTI_SRC_BITS, EXTI_SRC_PA);
-	// 03. set edge detection in trigger register
-	// enable rising edge detection
-	SetBits(&rExtInt.rtsr, TRIGGER_BITS * 0, TRIGGER_BITS, BIT_ENABLE);
-	// disable falling edge detection
-	SetBits(&rExtInt.ftsr, TRIGGER_BITS * 0, TRIGGER_BITS, BIT_DISABLE);
-	// 04. enable interrupt request in interrupt mask register
-	SetBits(&rExtInt.imr, INT_MASK_BITS * 0, INT_MASK_BITS, BIT_ENABLE);
-	return 0;
-}
-
-void handleKeyInterrupt(void)
-{
-	// disable interrupt request in interrupt mask register??
-	// SetBits(&rExtInt.imr, INT_MASK_BITS * 0, INT_MASK_BITS, BIT_DISABLE);
-	uint32_t pending = BIT_DISABLE;
-	GetBits(&rExtInt.pr, INT_MASK_BITS * 0, INT_MASK_BITS, &pending);
-	// flip led status
-	if (true == led_on) {
-		led_on = false;
-	} else {
-		led_on = true;
-	}
-	key_pressed = true;
-	// clear pending bit in the pending register
-	SetBits(&rExtInt.pr, PENDING_BITS * 0, PENDING_BITS, BIT_ENABLE);
-}
+#include "wwdg.h"
+#include "power.h"
+#include "flash.h"
+#include "gpio.h"
 
 int main(void)
 {
-	initGPIO();
+	// see 3.4.1 in RM0383 for more details about relation between CPU clock and
+	// flash read time.
+	EnablePowerClock();
+	SetVOS(VOS_SCALE_1_100MHz);
+	SetFlashLatency(FLASH_LATENCY_3);
+	// config PLL to archive 96 MHz PLL clock output based on 25 MHz HSE clock
+	EnableHighSpeedExternalClock();
+	EnableSysConfClock();
+	EnableGPIOClock();
+	EnableTimer11Clock();
+
+	InitGPIO(led_pin, led_on, key_pin);
+	// TODO(bjweare): set interrupt priority
+	EnableEXTI0Interrupt();
+
 	initKeyInterrupt();
-	initTimer11();
+
+	// TODO(bjweare): set interrupt priority
+	EnableTimer11Interrupt();
+	initTimer11(500);
 
 	while (true) {
 		if (!key_pressed) {
 			continue;
 		}
-		if (true == led_on) {
-			// reset GPIOC_13
-			SetBits(&(rGPIOC.bs), GPIO_BITSET_BITS * led_pin + 16, GPIO_BITSET_BITS,
-							1);
-		} else {
-			// set the GPIO PC13 to led_on
-			SetBits(&(rGPIOC.bs), GPIO_BITSET_BITS * led_pin, GPIO_BITSET_BITS, 1);
-		}
+
 		key_pressed = false;
 	}
 }

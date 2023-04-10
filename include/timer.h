@@ -46,7 +46,7 @@ typedef struct Tim1xType {
 #define TIM10_BASE (0x40014400)
 #define TIM11_BASE (0x40014800)
 
-int initTimer11(void);
+int initTimer11(uint32_t periodInMs);
 void handleTimerUpdate(void);
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef __DEV_EBOX_SYS_CFG__
 #define __DEV_EBOX_SYS_CFG__
 
+#include <stdint.h>
+
 typedef struct SysCfgType {
 	// bits[1:0] memory mapping selection
 	// 0b00 - main flash memory mapped at 0x00000000
@@ -31,6 +33,6 @@ typedef enum EXTI_SRC {
 	EXTI_SRC_PH = 0b0111,
 } EXTI_SRC;
 
-#define rSysCfg (*((SysCfgType *)0x40013800))
+extern SysCfgType *rSysCfg;
 
 #endif

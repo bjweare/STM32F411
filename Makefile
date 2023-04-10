@@ -39,7 +39,14 @@ C_SOURCES =  \
 src/bit.c \
 src/rcc.c \
 src/timer.c \
+src/sys_cfg.c \
+src/exti.c \
 src/nvic.c \
+src/wwdg.c \
+src/power.c \
+src/flash.c \
+src/gpio.c \
+src/key.c \
 src/dev_ebox.c
 
 # ASM sources

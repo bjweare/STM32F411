@@ -1,8 +1,7 @@
 #include "timer.h"
 
 #include "bit.h"
-#include "rcc.h"
-#include "nvic.h"
+#include "gpio.h"
 
 /* TIMx_CR1 - configuration register 1 */
 /* auto-reload preload enable
@@ -118,9 +117,8 @@
 
 static Tim1xType *rTim11 = (Tim1xType *)TIM11_BASE;
 
-int initTimer11(void)
+int initTimer11(uint32_t periodInMs)
 {
-	EnableTimer11Clock();
 	// 01. disable counter by resetting CE in TIMx_CR1
 	SetBits(&rTim11->cr1, CEN_START_BIT, 1, BIT_DISABLE);
 	// 02. re-initialize the counter by setting UG in TIMx_EGR
@@ -128,9 +126,9 @@ int initTimer11(void)
 	// 03. enable auto-reload preload by setting ARPE in TIMx_CR1
 	SetBits(&rTim11->cr1, ARPE_START_BIT, 1, BIT_ENABLE);
 	// 04. determine clock prescaler by setting CK_PSC in TIMx_PSC
-	SetBits(&rTim11->psc, PSC_START_BIT, PSC_BITS, 0x000f);
+	SetBits(&rTim11->psc, PSC_START_BIT, PSC_BITS, 9600);
 	// 05. determine auto-reload value by setting ARR in TIMx_ARR
-	SetBits(&rTim11->arr, ARR_START_BIT, ARR_BITS, 0xffff);
+	SetBits(&rTim11->arr, ARR_START_BIT, ARR_BITS, periodInMs * 10);
 	// 06. enable update interrupt event by resetting UDIS in TIMx_CR1
 	SetBits(&rTim11->cr1, UDIS_START_BIT, 1, BIT_DISABLE);
 	// 07. enable update interrupt by setting UIE in TIMx_DIER
@@ -138,20 +136,21 @@ int initTimer11(void)
 	// 08. enable counter by setting CE in TIMx_CR1
 	SetBits(&rTim11->cr1, CEN_START_BIT, 1, BIT_ENABLE);
 
-	EnableTimer11Interrupt();
-
 	return 0;
 }
 
 void handleTimerUpdate(void)
 {
-	// 01. disable update interrupt event by setting UDIS in TIMx_CR1
-	// SetBits(&rTim11->cr1, UDIS_START_BIT, 1, BIT_DISABLE);
+	// 01. disable counter by setting CE in TIMx_CR1
+	SetBits(&rTim11->cr1, CEN_START_BIT, 1, BIT_DISABLE);
 	// 02. read counter from TIMx_CNT
 	uint32_t counter = 0;
 	GetBits(&rTim11->cnt, CNT_START_BIT, CNT_BITS, &counter);
+
+	SetLEDStatus(led_pin, led_on);
+	led_on = (led_on == true) ? false : true;
 	// 03. clear update interrupt flag by resetting UIF in TIMx_SR
 	SetBits(&rTim11->sr, UIF_START_BIT, 1, BIT_DISABLE);
-	// 04. enable update interrupt event by resetting UDIS in TIMx_CR1
-	// SetBits(&rTim11->cr1, UDIS_START_BIT, 1, BIT_DISABLE);
+	// 04. disable counter by setting CE in TIMx_CR1
+	SetBits(&rTim11->cr1, CEN_START_BIT, 1, BIT_ENABLE);
 }

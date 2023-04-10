@@ -2,6 +2,8 @@
 
 #include "bit.h"
 
+#define NVIC_BASE (0xE000E100)
+
 #define EXTI0_START_BIT (6)
 #define TIM1_TRG_COM_TIM11_START_BIT (26)
 #define INTERRUPT_EN_BITS (1)

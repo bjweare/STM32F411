@@ -5,6 +5,14 @@
 
 // RCC - Reset and Clock Control
 
+#define HSECLK_MHz (25)
+#define SYSCLK_MHz (96)
+#define AHBCLK_MHz (96)
+#define APB1CLK_MHz (AHBCLK_MHz / 2)
+#define APB2CLK_MHz (AHBCLK_MHz)
+#define APB1_TIMCLK_MHz (APB1CLK_MHz * 2)
+#define APB2_TIMCLK_MHz (APB1CLK_MHz)
+
 typedef struct RCCType {
 	/* offset: 0x00 */
 	// clock control register
@@ -43,7 +51,10 @@ typedef struct RCCType {
 	uint32_t apb2enr;
 } RCCType;
 
+int EnableHighSpeedExternalClock(void);
 int EnableSysConfClock(void);
+int EnablePowerClock(void);
+int EnableWWDGClock(void);
 int EnableGPIOClock(void);
 int EnableTimer11Clock(void);
 

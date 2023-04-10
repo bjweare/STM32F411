@@ -1,29 +1,8 @@
 #ifndef __DEV_EBOX_GPIO_H__
 #define __DEV_EBOX_GPIO_H__
 
-#undef GPIO_MODE
-#undef MODE_INPUT
-#undef MODE_ANALOG
-
-#undef GPIO_PIN_0
-#undef GPIO_PIN_1
-#undef GPIO_PIN_2
-#undef GPIO_PIN_3
-#undef GPIO_PIN_4
-#undef GPIO_PIN_5
-#undef GPIO_PIN_6
-#undef GPIO_PIN_7
-#undef GPIO_PIN_8
-#undef GPIO_PIN_9
-#undef GPIO_PIN_10
-#undef GPIO_PIN_11
-#undef GPIO_PIN_12
-#undef GPIO_PIN_13
-#undef GPIO_PIN_14
-#undef GPIO_PIN_15
-
-#undef GPIOA_BASE
-#undef GPIOC_BASE
+#include <stdint.h>
+#include <stdbool.h>
 
 typedef enum GPIO_PIN {
 	GPIO_PIN_0 = 0,
@@ -127,9 +106,14 @@ typedef struct GPIOType {
 	uint32_t afrh;
 } GPIOType;
 
-#define GPIOA_BASE (0x40020000)
-#define GPIOC_BASE (0x40020800)
-#define rGPIOA (*(GPIOType *)GPIOA_BASE)
-#define rGPIOC (*(GPIOType *)GPIOC_BASE)
+extern GPIOType *rGPIOA;
+extern GPIOType *rGPIOC;
+extern bool led_on;
+extern bool key_pressed;
+extern uint8_t led_pin;
+extern uint8_t key_pin;
+
+int InitGPIO(uint8_t led_pin, bool led_on, uint8_t key_pin);
+int SetLEDStatus(uint8_t led_pin, bool led_on);
 
 #endif

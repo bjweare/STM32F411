@@ -19,6 +19,7 @@ int SetBits(uint32_t *p, uint8_t start_bit, uint8_t bits, uint32_t data)
 	if (p == NULL || start_bit > 31 || bits > 32) {
 		return -1;
 	}
+	*p &= ~(bits_mask[bits] << start_bit);
 	*p |= (data & bits_mask[bits]) << start_bit;
 	return 0;
 }

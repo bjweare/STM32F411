@@ -23,9 +23,8 @@ typedef struct NVICType {
 	uint32_t iser6;
 	// interrupt set-enable register 7
 	uint32_t iser7;
+	// TODO(bjweare): register below starts from offset 0x80
 } NVICType;
-
-#define NVIC_BASE (0xE000E100)
 
 int EnableEXTI0Interrupt(void);
 int EnableTimer11Interrupt(void);
