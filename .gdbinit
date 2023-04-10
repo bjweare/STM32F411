@@ -13,12 +13,16 @@ target extended-remote :3333
 
 # Flash program and load symbols
 load
-break main
+break dev_ebox.c:main
 #break StartDefaultTask
 #break HAL_UART_Transmit
-break dev_ebox.c:handleKeyInterrupt
-break timer.c:initTimer11
-break timer.c:handleTimerUpdate
+#break dev_ebox.c:handleKeyInterrupt
+#break rcc.c:EnableHighSpeedExternalClock
+#break timer.c:initTimer11
+#break timer.c:handleTimerUpdate
+#break uart.c:UartTransmitOneByte
+#break uart.c:InitUart
+#break uart.c:UartTransmitMultipleBytes
 
 # Run to main (first breakpoint)
 continue
