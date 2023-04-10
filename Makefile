@@ -47,6 +47,7 @@ src/power.c \
 src/flash.c \
 src/gpio.c \
 src/key.c \
+src/uart.c \
 src/dev_ebox.c
 
 # ASM sources

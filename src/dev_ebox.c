@@ -13,6 +13,7 @@
 #include "power.h"
 #include "flash.h"
 #include "gpio.h"
+#include "uart.h"
 
 int main(void)
 {
@@ -27,21 +28,27 @@ int main(void)
 	EnableGPIOClock();
 	EnableTimer11Clock();
 
+	InitUart(115200);
+
 	InitGPIO(led_pin, led_on, key_pin);
 	// TODO(bjweare): set interrupt priority
-	EnableEXTI0Interrupt();
 
 	initKeyInterrupt();
 
 	// TODO(bjweare): set interrupt priority
+	initTimer11(1000);
+
+	// enable NVIC interrupt
+	EnableEXTI0Interrupt();
 	EnableTimer11Interrupt();
-	initTimer11(500);
 
 	while (true) {
 		if (!key_pressed) {
 			continue;
 		}
 
+		UartTransmitOneByte('A');
+		UartTransmitOneByte('\n');
 		key_pressed = false;
 	}
 }

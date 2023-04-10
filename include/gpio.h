@@ -28,6 +28,7 @@ typedef enum GPIO_PIN {
 #define GPIO_OSPEED_BITS (2)
 #define GPIO_PUPD_BITS (2)
 #define GPIO_BITSET_BITS (1)
+#define GPIO_AF_BITS (4)
 typedef enum GPIO_MODE {
 	GPIO_MODE_INPUT = 0b00,
 	GPIO_MODE_OUTPUT = 0b01,
@@ -42,9 +43,9 @@ typedef enum GPIO_OTYPE { // Output Type
 
 typedef enum GPIO_OSPEED { // Output Speed
 	GPIO_OSPEED_LS = 0b00, // Low Speed
-	GPIO_OSPEED_MS = 0b01, // Low Speed
-	GPIO_OSPEED_FS = 0b10, // Low Speed
-	GPIO_OSPEED_HS = 0b11 // Low Speed
+	GPIO_OSPEED_MS = 0b01, // Medium Speed
+	GPIO_OSPEED_FS = 0b10, // Fast Speed
+	GPIO_OSPEED_HS = 0b11 // High Speed
 } GPIO_OSPEED;
 
 typedef enum GPIO_PUPD {

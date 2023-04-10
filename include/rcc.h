@@ -2,6 +2,7 @@
 #define __DEV_EBBOX_RCC_H__
 
 #include <stdint.h>
+#include <stdbool.h>
 
 // RCC - Reset and Clock Control
 
@@ -57,5 +58,6 @@ int EnablePowerClock(void);
 int EnableWWDGClock(void);
 int EnableGPIOClock(void);
 int EnableTimer11Clock(void);
+int SetUart0ClockStatus(bool bOnOff);
 
 #endif

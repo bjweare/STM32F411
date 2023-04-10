@@ -1,7 +1,11 @@
 #include "timer.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "bit.h"
 #include "gpio.h"
+#include "uart.h"
 
 /* TIMx_CR1 - configuration register 1 */
 /* auto-reload preload enable
@@ -147,8 +151,15 @@ void handleTimerUpdate(void)
 	uint32_t counter = 0;
 	GetBits(&rTim11->cnt, CNT_START_BIT, CNT_BITS, &counter);
 
+	// TODO(bjweare): use PWM timer to achive breathing led effect
+	// flip led status to achive blinking led effect
 	SetLEDStatus(led_pin, led_on);
 	led_on = (led_on == true) ? false : true;
+
+	uint8_t *data = (uint8_t *)"Hello World\n";
+	size_t size = strlen("Hello World\n");
+	UartTransmitMultipleBytes(data, size);
+
 	// 03. clear update interrupt flag by resetting UIF in TIMx_SR
 	SetBits(&rTim11->sr, UIF_START_BIT, 1, BIT_DISABLE);
 	// 04. disable counter by setting CE in TIMx_CR1
